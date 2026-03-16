@@ -1,3 +1,28 @@
+@media (max-width: 767px) {
+  .site-title {
+    display: none !important;
+  }
+  .footer .social-links {
+    text-align: center !important;
+    justify-content: center !important;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 8px;
+  }
+  .footer h4 {
+    text-align: center !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+@media (max-width: 767px) {
+  .site-title {
+    display: none !important;
+  }
+}
 /* TAMAMAT CLASSES */
 /* Importing Fredoka and Uncial Antiqua and its best pairing partners */
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Quicksand:wght@300..700&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
