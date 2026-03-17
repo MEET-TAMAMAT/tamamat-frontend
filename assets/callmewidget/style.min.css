@@ -523,8 +523,9 @@
   left: -999999px !important;
   position: absolute !important;
 }
- i.z-icon {
-    font-size: 22px;};
+i.z-icon {
+    font-size: 22px;
+  }
 
 i.z-icon.icon-default-phone-ico {
   font-size: 22px;
