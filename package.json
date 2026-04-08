@@ -1,0 +1,6 @@
+{
+  "name": "tamamat-frontend",
+  "scripts": {
+    "start": "npx serve . -p $PORT"
+  }
+}

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="100%" height="100%" fill="none"/>
+
+  <text x="50" y="50" font-family="Arial, sans-serif" font-size="20" fill="white">10:33 AM</text>
+  <g transform="translate(850, 30)">
+    <text x="35" y="20" font-family="Arial, sans-serif" font-size="20" fill="white">30</text>
+    <text x="85" y="20" font-family="Arial, sans-serif" font-size="20" fill="white">3</text>
+  </g>
+
+  <text x="50" y="970" font-family="Arial, sans-serif" font-size="20" fill="white">02:33 AM</text>
+  <text x="850" y="970" font-family="Arial, sans-serif" font-size="20" fill="white">0 Users</text>
+
+  <g transform="translate(325, 325)">
+    <rect width="350" height="475" fill="none" stroke="#2a4b7c" stroke-width="2"/>
+    
+    <line x1="116" y1="0" x2="116" y2="475" stroke="#2a4b7c" stroke-width="1.5"/>
+    <line x1="233" y1="0" x2="233" y2="475" stroke="#2a4b7c" stroke-width="1.5"/>
+    
+    <line x1="0" y1="118" x2="350" y2="118" stroke="#2a4b7c" stroke-width="1.5"/>
+    <line x1="0" y1="237" x2="350" y2="237" stroke="#2a4b7c" stroke-width="1.5"/>
+    <line x1="0" y1="356" x2="350" y2="356" stroke="#2a4b7c" stroke-width="1.5"/>
+
+    <text x="20" y="50" font-family="Arial, sans-serif" font-size="36" fill="white">7</text>
+    <text x="20" y="90" font-family="Arial, sans-serif" font-size="24" fill="white">Home</text>
+    
+    <text x="136" y="50" font-family="Arial, sans-serif" font-size="36" fill="white">8</text>
+    <text x="136" y="90" font-family="Arial, sans-serif" font-size="24" fill="white">↑</text>
+    
+    <text x="20" y="406" font-family="Arial, sans-serif" font-size="36" fill="white">0</text>
+    <text x="20" y="446" font-family="Arial, sans-serif" font-size="24" fill="white">Ins</text>
+  </g>
+
+  <g transform="translate(125, 125)">
+    <rect width="200" height="200" rx="15" fill="#2d3436" stroke="#32ff7e" stroke-width="4" filter="url(#glow)"/>
+    <text x="20" y="30" font-family="Arial, sans-serif" font-size="18" fill="white">Francesco</text>
+    <rect x="25" y="45" width="150" height="110" rx="5" fill="#1e272e"/>
+    <rect x="40" y="160" width="30" height="30" rx="5" fill="#0984e3"/> <rect x="130" y="160" width="30" height="30" rx="5" fill="#0984e3"/> </g>
+
+  <g transform="translate(400, 50)">
+    <rect width="200" height="200" rx="15" fill="#2d3436" stroke="#0984e3" stroke-width="2"/>
+    <text x="20" y="30" font-family="Arial, sans-serif" font-size="18" fill="white">Anna</text>
+    <rect x="25" y="45" width="150" height="110" rx="5" fill="#1e272e"/>
+    <rect x="40" y="160" width="30" height="30" rx="5" fill="#f1c40f"/> <rect x="130" y="160" width="30" height="30" rx="5" fill="#0984e3"/> </g>
+
+  </svg>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        header { background: #333; color: white; padding: 20px; text-align: center; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .loading { text-align: center; color: #666; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="siteTitle">Loading...</h1>
+    </header>
+    
+    <div class="container">
+        <div id="content" class="loading">Loading content...</div>
+    </div>
+
+    <script>
+        // Replace with YOUR Directus URL and collection name
+        const DIRECTUS_URL = 'https://directus-production-1f02.up.railway.app/';
+        const COLLECTION = 'sections'; // or whatever your collection is called
+
+        async function loadContent() {
+            try {
+                const response = await fetch(
+                    `${DIRECTUS_URL}/items/${COLLECTION}?fields=*`
+                );
+                
+                if (!response.ok) throw new Error('Failed to fetch');
+                
+                const data = await response.json();
+                const sections = data.data;
+
+                // Update title
+                if (sections.length > 0) {
+                    document.getElementById('siteTitle').textContent = 
+                        sections[0].title || 'My Portfolio';
+                }
+
+                // Build page content
+                let html = '';
+                sections.forEach(section => {
+                    html += `
+                        <section>
+                            <h2>${section.title || ''}</h2>
+                            <p>${section.content || ''}</p>
+                        </section>
+                    `;
+                });
+
+                document.getElementById('content').innerHTML = html;
+
+            } catch (error) {
+                document.getElementById('content').innerHTML = 
+                    `<p class="error">Error loading content: ${error.message}</p>`;
+                console.error(error);
+            }
+        }
+
+        loadContent();
+    </script>
+</body>
+</html>
