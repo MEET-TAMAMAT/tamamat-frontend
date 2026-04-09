@@ -1033,19 +1033,7 @@
     <script src="assets/callmewidget/widget.min.js"></script>
     <!-- /Call me Widget -->
 
-    <script>
-      document
-        .getElementById("messenger")
-        .addEventListener("change", function () {
-          var usernameField = document.getElementById("username-field");
-          if (this.value) {
-            usernameField.style.display = "block";
-          } else {
-            usernameField.style.display = "none";
-          }
-        });
-    </script>
-    
+    <!-- Connect hero section to Directus API -->
 <script>
 fetch('https://directus-production-d4f6.up.railway.app/items/hero')
   .then(res => res.json())
