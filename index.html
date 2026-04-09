@@ -92,54 +92,25 @@
     </header>
 
     <main class="main">
-      <!-- Home -->
-      <section id="home" class="hero section">
-        <div class="container">
-          <div class="row gy-4">
-            <div
-              class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center"
-            >
-              <h1 data-aos="fade-up">
-                Online Teaching Platform for Small Groups
-              </h1>
-              <br />
-              <p data-aos="fade-up" data-aos-delay="100">
-                TAMAMAT is designed for Direct Method teaching and small group
-                lessons of up to 8 students - perfect for language schools and
-                beyond! Keep your students engaged with dynamic
-                question-switching, ensuring active participation and focus.<br />
-                Our shortcut selection tools make managing group lessons
-                effortless, interactive, and highly effective.
-              </p>
-              <div
-                class="d-flex flex-column flex-md-row"
-                data-aos="fade-up"
-                data-aos-delay="200"
-              >
-                <a href="#how-it-works" class="btn-get-started"
-                  >How it Works<i class="bi bi-arrow-down"></i
-                ></a>
-                <a
-                  href="#"
-                  class="glightbox btn-watch-video d-flex align-items-center justify-content-center ms-0 ms-md-4 mt-4 mt-md-0"
-                  ><i class="bi bi-play-circle"></i><span>Watch Video</span></a
-                >
-              </div>
-            </div>
-            <div
-              class="col-lg-6 order-1 order-lg-2 d-flex justify-content-center hero-img"
-              data-aos="zoom-out"
-            >
-              <img
-                src="assets/img/Num-1-9.png"
-                class="img-fluid w-75"
-                alt="Numeric keypad control of buttons from 1 to 9"
-              />
-            </div>
-          </div>
+<!-- Home -->
+<section id="home" class="hero section">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center">
+        <h1 data-aos="fade-up" id="hero-title"></h1><br>
+        <p data-aos="fade-up" data-aos-delay="100" id="hero-subtitle"></p>
+        <div class="d-flex flex-column flex-md-row" data-aos="fade-up" data-aos-delay="200">
+          <a id="hero-btn-primary" href="#" class="btn-get-started"><i class="bi bi-arrow-down"></i></a>
+          <a id="hero-btn-secondary" href="#" class="glightbox btn-watch-video d-flex align-items-center justify-content-center ms-0 ms-md-4 mt-4 mt-md-0"><i class="bi bi-play-circle"></i><span></span></a>
         </div>
-      </section>
-      <!-- /Home Section -->
+      </div>
+      <div class="col-lg-6 order-1 order-lg-2 d-flex justify-content-center hero-img" data-aos="zoom-out">
+        <img id="hero-image" src="" class="img-fluid w-75" alt="">
+      </div>
+    </div>
+  </div>
+</section>
+<!-- /Home Section -->
 
       <!-- How it Works -->
       <section id="how-it-works" class="about section">
@@ -1074,5 +1045,21 @@
           }
         });
     </script>
+    
+<script>
+fetch('https://directus-production-d4f6.up.railway.app/items/hero')
+  .then(res => res.json())
+  .then(({ data }) => {
+    document.getElementById('hero-title').textContent = data.title;
+    document.getElementById('hero-subtitle').textContent = data.subtitle;
+    document.getElementById('hero-btn-primary').childNodes[0].textContent = data.button_primary_text;
+    document.getElementById('hero-btn-primary').href = data.button_primary_url;
+    document.getElementById('hero-btn-secondary').querySelector('span').textContent = data.button_secondary_text;
+    document.getElementById('hero-btn-secondary').href = data.button_secondary_url;
+    document.getElementById('hero-image').src = 'https://directus-production-d4f6.up.railway.app/assets/' + data.image;
+    document.getElementById('hero-image').alt = data.title;
+  });
+</script>
+
   </body>
 </html>
