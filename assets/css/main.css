@@ -901,12 +901,13 @@ section,
 }
 
 .section-title h2 {
+  background-color: #dbdbdb;
   font-size: 13px;
   letter-spacing: 1px;
   font-weight: 700;
   padding: 8px 20px;
   margin: 0;
-   background: color-mix(in srgb, var(--contrast-color), transparent 65%);
+  /*background: color-mix(in srgb, var(--contrast-color), transparent 65%); */
   color: var(--accent-color);
   display: inline-block;
   text-transform: uppercase;
@@ -1980,7 +1981,7 @@ section,
 .contact .info-item i {
   font-size: 38px;
   line-height: 0;
-  color: var(--accent-color);
+  color: #ffffff;
 }
 
 .contact .info-item h3 {
