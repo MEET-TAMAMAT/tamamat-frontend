@@ -4,7 +4,7 @@
  */
 
 class DirectusAPI {
-    constructor(baseUrl = 'https://directus-production-d4f6.up.railway.app') {
+    constructor(baseUrl = 'https://admin.tamamat.com') {
         this.baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
         this.cache = new Map();
         this.cacheTimeout = 5 * 60 * 1000; // 5 minutes

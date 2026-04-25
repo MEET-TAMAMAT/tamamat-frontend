@@ -1040,7 +1040,7 @@
     <!-- Connect hero section to Directus API -->
 <script>
 /* HERO */
-fetch('https://directus-production-d4f6.up.railway.app/items/hero')
+fetch('https://admin.tamamat.com/items/hero')
   .then(res => res.json())
   .then(({ data }) => {
     document.getElementById('hero-title').textContent = data.title;
@@ -1049,13 +1049,13 @@ fetch('https://directus-production-d4f6.up.railway.app/items/hero')
     document.getElementById('hero-btn-primary').href = data.button_primary_url;
     document.getElementById('hero-btn-secondary').querySelector('span').textContent = data.button_secondary_text;
     document.getElementById('hero-btn-secondary').href = data.button_secondary_url;
-    document.getElementById('hero-image').src = 'https://directus-production-d4f6.up.railway.app/assets/' + data.image;
+    document.getElementById('hero-image').src = 'https://admin.tamamat.com/assets/' + data.image;
     document.getElementById('hero-image').alt = data.title;
   })
   .catch(err => console.error('Hero fetch error:', err));
 
 /* HOW IT WORKS */
-fetch('https://directus-production-d4f6.up.railway.app/items/how_it_works')
+fetch('https://admin.tamamat.com/items/how_it_works')
   .then(res => res.json())
   .then(({ data }) => {
     document.getElementById('how-it-works-title').textContent = data.title;
@@ -1065,7 +1065,7 @@ fetch('https://directus-production-d4f6.up.railway.app/items/how_it_works')
   .catch(err => console.error('How It Works fetch error:', err));
 
 /* HOW IT WORKS STEPS */
-fetch('https://directus-production-d4f6.up.railway.app/items/how_it_works_steps')
+fetch('https://admin.tamamat.com/items/how_it_works_steps')
   .then(res => res.json())
   .then(({ data }) => {
     console.log('how_it_works_steps:', data);
@@ -1093,7 +1093,7 @@ fetch('https://directus-production-d4f6.up.railway.app/items/how_it_works_steps'
   .catch(err => console.error('How It Works Steps fetch error:', err));
 
 /* FEATURES */
-fetch('https://directus-production-d4f6.up.railway.app/items/features')
+fetch('https://admin.tamamat.com/items/features')
   .then(res => res.json())
   .then(({ data }) => {
     document.getElementById('features-title').textContent = data.title;
@@ -1103,7 +1103,7 @@ fetch('https://directus-production-d4f6.up.railway.app/items/features')
   .catch(err => console.error('Features fetch error:', err));
 
 /* FEATURES ITEMS */
-fetch('https://directus-production-d4f6.up.railway.app/items/features_items')
+fetch('https://admin.tamamat.com/items/features_items')
   .then(res => res.json())
   .then(({ data }) => {
     console.log('features_items:', data);
@@ -1137,7 +1137,7 @@ fetch('https://directus-production-d4f6.up.railway.app/items/features_items')
   .catch(err => console.error('Features Items fetch error:', err));
 
 /* PRICING PLANS */
-fetch('https://directus-production-d4f6.up.railway.app/items/pricing_plans')
+fetch('https://admin.tamamat.com/items/pricing_plans')
   .then(res => res.json())
   .then(({ data }) => {
     console.log('pricing_plans:', data);
@@ -1180,7 +1180,7 @@ fetch('https://directus-production-d4f6.up.railway.app/items/pricing_plans')
   .catch(err => console.error('Pricing Plans fetch error:', err));
 
 /* FAQ ITEMS */
-fetch('https://directus-production-d4f6.up.railway.app/items/faq_items')
+fetch('https://admin.tamamat.com/items/faq_items')
   .then(res => res.json())
   .then(({ data }) => {
     console.log('faq_items:', data);
@@ -1202,7 +1202,7 @@ fetch('https://directus-production-d4f6.up.railway.app/items/faq_items')
   .catch(err => console.error('FAQ Items fetch error:', err));
 
 /* TESTIMONIALS */
-fetch('https://directus-production-d4f6.up.railway.app/items/testimonials')
+fetch('https://admin.tamamat.com/items/testimonials')
   .then(res => res.json())
   .then(({ data }) => {
     console.log('testimonials:', data);
@@ -1223,7 +1223,7 @@ fetch('https://directus-production-d4f6.up.railway.app/items/testimonials')
 
           // Update image if provided and element exists
           if (imageEl && testimonial.image) {
-            imageEl.src = 'https://directus-production-d4f6.up.railway.app/assets/' + testimonial.image;
+            imageEl.src = 'https://admin.tamamat.com/assets/' + testimonial.image;
             imageEl.alt = testimonial.name;
           }
         }
@@ -1233,7 +1233,7 @@ fetch('https://directus-production-d4f6.up.railway.app/items/testimonials')
   .catch(err => console.error('Testimonials fetch error:', err));
 
 /* CONTACT */
-fetch('https://directus-production-d4f6.up.railway.app/items/contact')
+fetch('https://admin.tamamat.com/items/contact')
   .then(res => res.json())
   .then(({ data }) => {
     document.getElementById('contact-title').textContent = data.title;
@@ -1248,15 +1248,15 @@ fetch('https://directus-production-d4f6.up.railway.app/items/contact')
 
 <!-- Collection URLs for Directus API 
 
-https://directus-production-d4f6.up.railway.app/items/hero
-https://directus-production-d4f6.up.railway.app/items/how_it_works
-https://directus-production-d4f6.up.railway.app/items/how_it_works_steps
-https://directus-production-d4f6.up.railway.app/items/features
-https://directus-production-d4f6.up.railway.app/items/features_items
-https://directus-production-d4f6.up.railway.app/items/pricing_plans
-https://directus-production-d4f6.up.railway.app/items/faq_items
-https://directus-production-d4f6.up.railway.app/items/testimonials
-https://directus-production-d4f6.up.railway.app/items/contact
+https://admin.tamamat.com/items/hero
+https://admin.tamamat.com/items/how_it_works
+https://admin.tamamat.com/items/how_it_works_steps
+https://admin.tamamat.com/items/features
+https://admin.tamamat.com/items/features_items
+https://admin.tamamat.com/items/pricing_plans
+https://admin.tamamat.com/items/faq_items
+https://admin.tamamat.com/items/testimonials
+https://admin.tamamat.com/items/contact
 
 
 -->
