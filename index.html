@@ -837,209 +837,267 @@
 
       const BASE = 'https://admin.tamamat.com';
 
-      /* ── helpers ─────────────────────────────────────── */
+      /* ─────────────────────────────────────────────────────────────────
+         HELPERS
+         ───────────────────────────────────────────────────────────────── */
+
       function first(data) { return Array.isArray(data) ? data[0] : data; }
 
-      function setText(id, value) {
-        if (value == null) return;
-        const el = document.getElementById(id);
-        if (el) el.textContent = value;
+      /**
+       * bind(el, collection, id, field)
+       * Stamps the three data-directus-* attributes that the Directus
+       * Visual Editor "Toggle Editable Elements" button scans for.
+       */
+      function bind(el, collection, id, field) {
+        if (!el) return;
+        el.setAttribute('data-directus-collection', collection);
+        el.setAttribute('data-directus-id',         String(id));
+        el.setAttribute('data-directus-field',       field);
       }
 
-      function setHTML(id, html) {
-        if (html == null) return;
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = html;
+      /** Set text content AND add Visual Editor binding */
+      function setText(elId, collection, id, field, value) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (value != null) el.textContent = value;
+        bind(el, collection, id, field);
       }
 
-      function setAttr(id, attr, value) {
+      /** Set innerHTML (markdown) AND add Visual Editor binding */
+      function setHTML(elId, collection, id, field, html) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (html != null) el.innerHTML = html;
+        bind(el, collection, id, field);
+      }
+
+      /** Set an arbitrary attribute on an element (no binding — used for hrefs) */
+      function setAttr(elId, attr, value) {
         if (value == null) return;
-        const el = document.getElementById(id);
+        const el = document.getElementById(elId);
         if (el) el.setAttribute(attr, value);
       }
 
-      function setImg(id, uuid) {
-        if (!uuid) return;
-        const el = document.getElementById(id);
-        if (el) el.src = BASE + '/assets/' + uuid;
+      /** Set image src from a Directus file UUID AND add Visual Editor binding */
+      function setImg(elId, collection, id, field, uuid) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (uuid) el.src = BASE + '/assets/' + uuid;
+        bind(el, collection, id, field);
       }
 
+      /** Render markdown with marked.js (falls back to plain <p> wrapper) */
       function md(text) {
-        // Use marked.js if available; otherwise return text wrapped in <p>
-        if (typeof marked !== 'undefined' && text) {
-          return marked.parse(text);
-        }
+        if (typeof marked !== 'undefined' && text) return marked.parse(text);
         return text ? '<p>' + text + '</p>' : '';
       }
 
-      function applyFooterLink(id, url, enabled) {
-        const el = document.getElementById(id);
+      /** Apply href + display to a footer social link */
+      function applyFooterLink(elId, url, enabled) {
+        const el = document.getElementById(elId);
         if (!el) return;
         if (enabled === false) { el.style.display = 'none'; return; }
         if (url) el.href = url;
       }
 
-      /* ── HOME (tamamat_com_home) ──────────────────────── */
+
+      /* ─────────────────────────────────────────────────────────────────
+         HOME  →  collection: tamamat_com_home
+         ───────────────────────────────────────────────────────────────── */
       fetch(BASE + '/items/tamamat_com_home')
         .then(r => r.json())
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
-          setText('home-title',       d.home_title);
-          setText('home-description', d.home_description);
-          setText('home-btn-text',    d.home_button);
-          setImg ('home-image',       d.home_image);
+          const C = 'tamamat_com_home';
+          const id = d.id;
+
+          setText('home-title',       C, id, 'home_title',       d.home_title);
+          setText('home-description', C, id, 'home_description', d.home_description);
+          setText('home-btn-text',    C, id, 'home_button',      d.home_button);
+          setImg ('home-image',       C, id, 'home_image',       d.home_image);
           if (d.home_title) {
             const img = document.getElementById('home-image');
             if (img) img.alt = d.home_title;
           }
         })
-        .catch(err => console.error('[Directus] home:', err));
+        .catch(err => console.error('[Directus] tamamat_com_home:', err));
 
-      /* ── HOW IT WORKS ─────────────────────────────────── */
+
+      /* ─────────────────────────────────────────────────────────────────
+         HOW IT WORKS  →  collection: how_it_works
+         ───────────────────────────────────────────────────────────────── */
       fetch(BASE + '/items/how_it_works')
         .then(r => r.json())
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
-          setText('how-it-works-heading',      d.main_heading);
-          setText('manual-selection-title',    d.manual_selection_title);
-          setHTML('manual-selection-description', md(d.manual_selection_description));
-          setText('auto-selection-title',      d.auto_selection_title);
-          setHTML('auto-selection-description',   md(d.auto_selection_description));
-          setText('hero-video-btn-text',       d.video_button_text);
+          const C = 'how_it_works';
+          const id = d.id;
+
+          setText('how-it-works-heading',   C, id, 'main_heading',               d.main_heading);
+          setText('manual-selection-title', C, id, 'manual_selection_title',     d.manual_selection_title);
+          setHTML('manual-selection-description', C, id, 'manual_selection_description',
+                  md(d.manual_selection_description));
+          setText('auto-selection-title',   C, id, 'auto_selection_title',       d.auto_selection_title);
+          setHTML('auto-selection-description',   C, id, 'auto_selection_description',
+                  md(d.auto_selection_description));
+          setText('hero-video-btn-text',    C, id, 'video_button_text',          d.video_button_text);
         })
         .catch(err => console.error('[Directus] how_it_works:', err));
 
-      /* ── FEATURES (features_section) ─────────────────── */
+
+      /* ─────────────────────────────────────────────────────────────────
+         FEATURES  →  collection: features_section
+         ───────────────────────────────────────────────────────────────── */
       fetch(BASE + '/items/features_section')
         .then(r => r.json())
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
-          setText('features-heading', d.main_title);
+          const C = 'features_section';
+          const id = d.id;
+
+          setText('features-heading', C, id, 'main_title', d.main_title);
           for (let i = 1; i <= 6; i++) {
-            setText('feature-' + i + '-title',       d['feature_' + i + '_title']);
-            setText('feature-' + i + '-description', d['feature_' + i + '_description']);
+            setText('feature-' + i + '-title',       C, id, 'feature_' + i + '_title',       d['feature_' + i + '_title']);
+            setText('feature-' + i + '-description', C, id, 'feature_' + i + '_description', d['feature_' + i + '_description']);
           }
-          setImg('features-image', d.main_image);
+          setImg('features-image', C, id, 'main_image', d.main_image);
         })
         .catch(err => console.error('[Directus] features_section:', err));
 
-      /* ── PRICING (pricing_section) ────────────────────── */
+
+      /* ─────────────────────────────────────────────────────────────────
+         PRICING  →  collection: pricing_section
+         ───────────────────────────────────────────────────────────────── */
       fetch(BASE + '/items/pricing_section')
         .then(r => r.json())
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
-          setText('pricing-heading', d.main_title);
+          const C = 'pricing_section';
+          const id = d.id;
+
+          setText('pricing-heading', C, id, 'main_title', d.main_title);
 
           for (let i = 1; i <= 3; i++) {
-            const name  = d['plan_' + i + '_name'];
             const price = d['plan_' + i + '_price'];
             const desc  = d['plan_' + i + '_price_description'];
 
-            setText('plan-' + i + '-name',       name);
-            setText('plan-' + i + '-price',       price);
-            setText('plan-' + i + '-price-desc',  desc ? ' ' + desc : '');
+            setText('plan-' + i + '-name',       C, id, 'plan_' + i + '_name',              d['plan_' + i + '_name']);
+            setText('plan-' + i + '-price',      C, id, 'plan_' + i + '_price',             price);
+            setText('plan-' + i + '-price-desc', C, id, 'plan_' + i + '_price_description', desc ? ' ' + desc : '');
 
-            // Hide the $ prefix when the plan has no numeric price (e.g. "Contact Us")
-            const isNumericPrice = price && /^\d/.test(price.trim());
+            // Hide the $ prefix for non-numeric prices (e.g. "Contact Us")
+            const isNumeric = price && /^\d/.test(price.trim());
             const currencyEl = document.getElementById('plan-' + i + '-currency');
-            if (currencyEl) currencyEl.style.display = isNumericPrice ? '' : 'none';
+            if (currencyEl) currencyEl.style.display = isNumeric ? '' : 'none';
 
-            // Features list
             for (let j = 1; j <= 5; j++) {
-              setText('plan-' + i + '-feature-' + j, d['plan_' + i + '_feature_' + j]);
+              setText('plan-' + i + '-feature-' + j, C, id,
+                      'plan_' + i + '_feature_' + j, d['plan_' + i + '_feature_' + j]);
             }
 
-            // Button
+            // Button text + href (bind on the <a> element itself)
             const btnEl = document.getElementById('plan-' + i + '-btn');
             if (btnEl) {
               const btnText = d['plan_' + i + '_button_text'];
               const btnLink = d['plan_' + i + '_button_link'];
               if (btnText) btnEl.textContent = btnText;
               if (btnLink) btnEl.href = btnLink;
+              bind(btnEl, C, id, 'plan_' + i + '_button_text');
             }
           }
         })
         .catch(err => console.error('[Directus] pricing_section:', err));
 
-      /* ── FAQ SECTION TITLE (faq_section) ─────────────── */
+
+      /* ─────────────────────────────────────────────────────────────────
+         FAQ SECTION TITLE  →  collection: faq_section
+         ───────────────────────────────────────────────────────────────── */
       fetch(BASE + '/items/faq_section')
         .then(r => r.json())
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
-          setText('faq-heading', d.main_title);
+          setText('faq-heading', 'faq_section', d.id, 'main_title', d.main_title);
         })
         .catch(err => console.error('[Directus] faq_section:', err));
 
-      /* ── FAQ ITEMS ────────────────────────────────────── */
+
+      /* ─────────────────────────────────────────────────────────────────
+         FAQ ITEMS  →  collection: faq_items  (sorted by .sort)
+         ───────────────────────────────────────────────────────────────── */
       fetch(BASE + '/items/faq_items?sort=sort&filter[status][_eq]=published')
         .then(r => r.json())
         .then(({ data }) => {
           if (!Array.isArray(data)) return;
           data.forEach((item, idx) => {
             const n = idx + 1;
-            setText('faq-' + n + '-question', item.question);
-            setText('faq-' + n + '-answer',   item.answer);
-            // Honour default_open flag
+            setText('faq-' + n + '-question', 'faq_items', item.id, 'question', item.question);
+            setText('faq-' + n + '-answer',   'faq_items', item.id, 'answer',   item.answer);
+
+            // Honour the default_open flag
             if (item.default_open) {
               const qEl = document.getElementById('faq-' + n + '-question');
               if (qEl) {
                 const faqItem = qEl.closest('.faq-item');
-                if (faqItem) {
-                  faqItem.classList.add('faq-active');
-                } else {
-                  // Remove faq-active from the first item if not configured as default
-                  faqItem && faqItem.classList.remove('faq-active');
-                }
+                if (faqItem) faqItem.classList.add('faq-active');
               }
             }
           });
         })
         .catch(err => console.error('[Directus] faq_items:', err));
 
-      /* ── CONTACT (contact_section) ────────────────────── */
+
+      /* ─────────────────────────────────────────────────────────────────
+         CONTACT  →  collection: contact_section
+         ───────────────────────────────────────────────────────────────── */
       fetch(BASE + '/items/contact_section')
         .then(r => r.json())
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
+          const C = 'contact_section';
+          const id = d.id;
 
           // Email
-          setText('contact-email', d.email_address);
-          if (d.email_address) {
-            setAttr('contact-email-link', 'href', 'mailto:' + d.email_address);
-          }
+          setText('contact-email', C, id, 'email_address', d.email_address);
+          if (d.email_address) setAttr('contact-email-link', 'href', 'mailto:' + d.email_address);
 
           // Telegram
           if (d.telegram_handle) {
             const handle = d.telegram_handle.replace(/^@/, '');
             const tgUrl  = 'https://t.me/' + handle;
-            setText('contact-telegram-handle', d.telegram_handle);
-            setAttr('contact-telegram-link',       'href', tgUrl);
-            setAttr('contact-telegram-handle-link','href', tgUrl);
+            setText('contact-telegram-handle', C, id, 'telegram_handle', d.telegram_handle);
+            setAttr('contact-telegram-link',        'href', tgUrl);
+            setAttr('contact-telegram-handle-link', 'href', tgUrl);
           }
 
           // Hours
-          setText('contact-hours-days', d.support_hours_days);
-          setText('contact-hours-time', d.support_hours_time);
+          setText('contact-hours-days', C, id, 'support_hours_days', d.support_hours_days);
+          setText('contact-hours-time', C, id, 'support_hours_time', d.support_hours_time);
 
           // Form
-          setText('contact-form-title',  d.form_title);
-          setText('contact-submit-btn',  d.submit_button_text);
+          setText('contact-form-title', C, id, 'form_title',          d.form_title);
+          setText('contact-submit-btn', C, id, 'submit_button_text',  d.submit_button_text);
         })
         .catch(err => console.error('[Directus] contact_section:', err));
 
-      /* ── FOOTER (footer_section) ──────────────────────── */
+
+      /* ─────────────────────────────────────────────────────────────────
+         FOOTER  →  collection: footer_section
+         ───────────────────────────────────────────────────────────────── */
       fetch(BASE + '/items/footer_section')
         .then(r => r.json())
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
-          if (d.copyright_text) setText('footer-copyright', d.copyright_text);
+          const C = 'footer_section';
+          const id = d.id;
+
+          if (d.copyright_text) setText('footer-copyright', C, id, 'copyright_text', d.copyright_text);
           applyFooterLink('footer-twitter',   d.twitter_url,   d.twitter_enabled);
           applyFooterLink('footer-facebook',  d.facebook_url,  d.facebook_enabled);
           applyFooterLink('footer-instagram', d.instagram_url, d.instagram_enabled);
