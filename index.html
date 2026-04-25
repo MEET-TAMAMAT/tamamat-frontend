@@ -878,12 +878,15 @@
        */
       function bind(el, collection, id, fields, mode) {
         if (!el) return;
-        el.setAttribute('data-directus', JSON.stringify({
-          collection: collection,
-          item:       String(id),
-          fields:     fields,
-          mode:       mode || 'popover'
-        }));
+        // The SDK's editAttrToObject() parser splits by ";" then ":" so the
+        // attribute MUST be "collection:x;item:y;fields:z;mode:w" — NOT JSON.
+        var parts = [
+          'collection:' + collection,
+          'item:' + String(id),
+          'fields:' + (Array.isArray(fields) ? fields.join(',') : fields),
+          'mode:' + (mode || 'popover')
+        ];
+        el.setAttribute('data-directus', parts.join(';'));
       }
 
       function setText(elId, collection, id, field, value, mode) {
