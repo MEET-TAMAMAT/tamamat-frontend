@@ -40,6 +40,9 @@
 
     <!-- Marked.js for Markdown rendering (used by how_it_works rich-text-md fields) -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Directus Visual Editing SDK (required for Visual Editor in-page overlays) -->
+    <script src="https://unpkg.com/@directus/visual-editing" type="text/javascript"></script>
   </head>
 
   <body class="index-page">
@@ -844,55 +847,69 @@
       function first(data) { return Array.isArray(data) ? data[0] : data; }
 
       /**
-       * bind(el, collection, id, field)
-       * Stamps the three data-directus-* attributes that the Directus
-       * Visual Editor "Toggle Editable Elements" button scans for.
+       * bind(el, collection, id, field, mode)
+       *
+       * Sets the single `data-directus` attribute that the Directus Visual
+       * Editor SDK (@directus/visual-editing) reads to identify editable
+       * elements. The value is a JSON string with four keys:
+       *   collection – Directus collection name
+       *   item       – primary key of the item (as a string)
+       *   fields     – field name (string) or field names (array of strings)
+       *   mode       – 'popover' | 'modal' | 'drawer'
+       *
+       * mode guide:
+       *   popover  – short text (titles, labels, handles)
+       *   modal    – longer text, markdown, multi-line
+       *   drawer   – complex / multiple fields on one element
        */
-      function bind(el, collection, id, field) {
+      function bind(el, collection, id, fields, mode) {
         if (!el) return;
-        el.setAttribute('data-directus-collection', collection);
-        el.setAttribute('data-directus-id',         String(id));
-        el.setAttribute('data-directus-field',       field);
+        el.setAttribute('data-directus', JSON.stringify({
+          collection: collection,
+          item:       String(id),
+          fields:     fields,
+          mode:       mode || 'popover'
+        }));
       }
 
-      /** Set text content AND add Visual Editor binding */
-      function setText(elId, collection, id, field, value) {
+      /** Set textContent + Visual Editor binding */
+      function setText(elId, collection, id, field, value, mode) {
         const el = document.getElementById(elId);
         if (!el) return;
         if (value != null) el.textContent = value;
-        bind(el, collection, id, field);
+        bind(el, collection, id, field, mode || 'popover');
       }
 
-      /** Set innerHTML (markdown) AND add Visual Editor binding */
-      function setHTML(elId, collection, id, field, html) {
+      /** Set innerHTML (markdown/html) + Visual Editor binding */
+      function setHTML(elId, collection, id, field, html, mode) {
         const el = document.getElementById(elId);
         if (!el) return;
         if (html != null) el.innerHTML = html;
-        bind(el, collection, id, field);
+        bind(el, collection, id, field, mode || 'modal');
       }
 
-      /** Set an arbitrary attribute on an element (no binding — used for hrefs) */
-      function setAttr(elId, attr, value) {
+      /** Set a DOM attribute on an element (href etc.) — no Visual Editor binding */
+      function setDomAttr(elId, attr, value) {
         if (value == null) return;
         const el = document.getElementById(elId);
         if (el) el.setAttribute(attr, value);
       }
 
-      /** Set image src from a Directus file UUID AND add Visual Editor binding */
+      /** Set image src from a Directus file UUID + Visual Editor binding */
       function setImg(elId, collection, id, field, uuid) {
         const el = document.getElementById(elId);
         if (!el) return;
         if (uuid) el.src = BASE + '/assets/' + uuid;
-        bind(el, collection, id, field);
+        bind(el, collection, id, field, 'modal');
       }
 
-      /** Render markdown with marked.js (falls back to plain <p> wrapper) */
+      /** Render markdown → HTML (falls back to <p> wrapper) */
       function md(text) {
         if (typeof marked !== 'undefined' && text) return marked.parse(text);
         return text ? '<p>' + text + '</p>' : '';
       }
 
-      /** Apply href + display to a footer social link */
+      /** Update href / visibility on a footer social link */
       function applyFooterLink(elId, url, enabled) {
         const el = document.getElementById(elId);
         if (!el) return;
@@ -909,12 +926,11 @@
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
-          const C = 'tamamat_com_home';
-          const id = d.id;
+          const C = 'tamamat_com_home', id = d.id;
 
-          setText('home-title',       C, id, 'home_title',       d.home_title);
-          setText('home-description', C, id, 'home_description', d.home_description);
-          setText('home-btn-text',    C, id, 'home_button',      d.home_button);
+          setText('home-title',       C, id, 'home_title',       d.home_title,       'popover');
+          setText('home-description', C, id, 'home_description', d.home_description, 'modal');
+          setText('home-btn-text',    C, id, 'home_button',      d.home_button,      'popover');
           setImg ('home-image',       C, id, 'home_image',       d.home_image);
           if (d.home_title) {
             const img = document.getElementById('home-image');
@@ -932,17 +948,14 @@
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
-          const C = 'how_it_works';
-          const id = d.id;
+          const C = 'how_it_works', id = d.id;
 
-          setText('how-it-works-heading',   C, id, 'main_heading',               d.main_heading);
-          setText('manual-selection-title', C, id, 'manual_selection_title',     d.manual_selection_title);
-          setHTML('manual-selection-description', C, id, 'manual_selection_description',
-                  md(d.manual_selection_description));
-          setText('auto-selection-title',   C, id, 'auto_selection_title',       d.auto_selection_title);
-          setHTML('auto-selection-description',   C, id, 'auto_selection_description',
-                  md(d.auto_selection_description));
-          setText('hero-video-btn-text',    C, id, 'video_button_text',          d.video_button_text);
+          setText('how-it-works-heading',         C, id, 'main_heading',                d.main_heading,               'popover');
+          setText('manual-selection-title',       C, id, 'manual_selection_title',      d.manual_selection_title,     'popover');
+          setHTML('manual-selection-description', C, id, 'manual_selection_description', md(d.manual_selection_description), 'modal');
+          setText('auto-selection-title',         C, id, 'auto_selection_title',         d.auto_selection_title,       'popover');
+          setHTML('auto-selection-description',   C, id, 'auto_selection_description',   md(d.auto_selection_description),   'modal');
+          setText('hero-video-btn-text',          C, id, 'video_button_text',            d.video_button_text,          'popover');
         })
         .catch(err => console.error('[Directus] how_it_works:', err));
 
@@ -955,14 +968,15 @@
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
-          const C = 'features_section';
-          const id = d.id;
+          const C = 'features_section', id = d.id;
 
-          setText('features-heading', C, id, 'main_title', d.main_title);
+          setText('features-heading', C, id, 'main_title', d.main_title, 'popover');
+
           for (let i = 1; i <= 6; i++) {
-            setText('feature-' + i + '-title',       C, id, 'feature_' + i + '_title',       d['feature_' + i + '_title']);
-            setText('feature-' + i + '-description', C, id, 'feature_' + i + '_description', d['feature_' + i + '_description']);
+            setText('feature-' + i + '-title',       C, id, 'feature_' + i + '_title',       d['feature_' + i + '_title'],       'popover');
+            setText('feature-' + i + '-description', C, id, 'feature_' + i + '_description', d['feature_' + i + '_description'], 'modal');
           }
+
           setImg('features-image', C, id, 'main_image', d.main_image);
         })
         .catch(err => console.error('[Directus] features_section:', err));
@@ -976,37 +990,34 @@
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
-          const C = 'pricing_section';
-          const id = d.id;
+          const C = 'pricing_section', id = d.id;
 
-          setText('pricing-heading', C, id, 'main_title', d.main_title);
+          setText('pricing-heading', C, id, 'main_title', d.main_title, 'popover');
 
           for (let i = 1; i <= 3; i++) {
             const price = d['plan_' + i + '_price'];
             const desc  = d['plan_' + i + '_price_description'];
 
-            setText('plan-' + i + '-name',       C, id, 'plan_' + i + '_name',              d['plan_' + i + '_name']);
-            setText('plan-' + i + '-price',      C, id, 'plan_' + i + '_price',             price);
-            setText('plan-' + i + '-price-desc', C, id, 'plan_' + i + '_price_description', desc ? ' ' + desc : '');
+            setText('plan-' + i + '-name',       C, id, 'plan_' + i + '_name',              d['plan_' + i + '_name'], 'popover');
+            setText('plan-' + i + '-price',      C, id, 'plan_' + i + '_price',             price,                    'popover');
+            setText('plan-' + i + '-price-desc', C, id, 'plan_' + i + '_price_description', desc ? ' ' + desc : '',   'popover');
 
-            // Hide the $ prefix for non-numeric prices (e.g. "Contact Us")
+            // Hide $ prefix for plans with non-numeric price (e.g. "Contact Us")
             const isNumeric = price && /^\d/.test(price.trim());
             const currencyEl = document.getElementById('plan-' + i + '-currency');
             if (currencyEl) currencyEl.style.display = isNumeric ? '' : 'none';
 
             for (let j = 1; j <= 5; j++) {
-              setText('plan-' + i + '-feature-' + j, C, id,
-                      'plan_' + i + '_feature_' + j, d['plan_' + i + '_feature_' + j]);
+              setText('plan-' + i + '-feature-' + j, C, id, 'plan_' + i + '_feature_' + j, d['plan_' + i + '_feature_' + j], 'popover');
             }
 
-            // Button text + href (bind on the <a> element itself)
             const btnEl = document.getElementById('plan-' + i + '-btn');
             if (btnEl) {
               const btnText = d['plan_' + i + '_button_text'];
               const btnLink = d['plan_' + i + '_button_link'];
               if (btnText) btnEl.textContent = btnText;
               if (btnLink) btnEl.href = btnLink;
-              bind(btnEl, C, id, 'plan_' + i + '_button_text');
+              bind(btnEl, C, id, 'plan_' + i + '_button_text', 'popover');
             }
           }
         })
@@ -1021,7 +1032,7 @@
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
-          setText('faq-heading', 'faq_section', d.id, 'main_title', d.main_title);
+          setText('faq-heading', 'faq_section', d.id, 'main_title', d.main_title, 'popover');
         })
         .catch(err => console.error('[Directus] faq_section:', err));
 
@@ -1035,16 +1046,13 @@
           if (!Array.isArray(data)) return;
           data.forEach((item, idx) => {
             const n = idx + 1;
-            setText('faq-' + n + '-question', 'faq_items', item.id, 'question', item.question);
-            setText('faq-' + n + '-answer',   'faq_items', item.id, 'answer',   item.answer);
+            setText('faq-' + n + '-question', 'faq_items', item.id, 'question', item.question, 'popover');
+            setText('faq-' + n + '-answer',   'faq_items', item.id, 'answer',   item.answer,   'modal');
 
-            // Honour the default_open flag
             if (item.default_open) {
               const qEl = document.getElementById('faq-' + n + '-question');
-              if (qEl) {
-                const faqItem = qEl.closest('.faq-item');
-                if (faqItem) faqItem.classList.add('faq-active');
-              }
+              const faqItem = qEl && qEl.closest('.faq-item');
+              if (faqItem) faqItem.classList.add('faq-active');
             }
           });
         })
@@ -1059,29 +1067,23 @@
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
-          const C = 'contact_section';
-          const id = d.id;
+          const C = 'contact_section', id = d.id;
 
-          // Email
-          setText('contact-email', C, id, 'email_address', d.email_address);
-          if (d.email_address) setAttr('contact-email-link', 'href', 'mailto:' + d.email_address);
+          setText('contact-email', C, id, 'email_address', d.email_address, 'popover');
+          if (d.email_address) setDomAttr('contact-email-link', 'href', 'mailto:' + d.email_address);
 
-          // Telegram
           if (d.telegram_handle) {
             const handle = d.telegram_handle.replace(/^@/, '');
             const tgUrl  = 'https://t.me/' + handle;
-            setText('contact-telegram-handle', C, id, 'telegram_handle', d.telegram_handle);
-            setAttr('contact-telegram-link',        'href', tgUrl);
-            setAttr('contact-telegram-handle-link', 'href', tgUrl);
+            setText('contact-telegram-handle', C, id, 'telegram_handle', d.telegram_handle, 'popover');
+            setDomAttr('contact-telegram-link',        'href', tgUrl);
+            setDomAttr('contact-telegram-handle-link', 'href', tgUrl);
           }
 
-          // Hours
-          setText('contact-hours-days', C, id, 'support_hours_days', d.support_hours_days);
-          setText('contact-hours-time', C, id, 'support_hours_time', d.support_hours_time);
-
-          // Form
-          setText('contact-form-title', C, id, 'form_title',          d.form_title);
-          setText('contact-submit-btn', C, id, 'submit_button_text',  d.submit_button_text);
+          setText('contact-hours-days', C, id, 'support_hours_days', d.support_hours_days, 'popover');
+          setText('contact-hours-time', C, id, 'support_hours_time', d.support_hours_time, 'popover');
+          setText('contact-form-title', C, id, 'form_title',         d.form_title,         'popover');
+          setText('contact-submit-btn', C, id, 'submit_button_text', d.submit_button_text, 'popover');
         })
         .catch(err => console.error('[Directus] contact_section:', err));
 
@@ -1094,16 +1096,34 @@
         .then(({ data }) => {
           const d = first(data);
           if (!d) return;
-          const C = 'footer_section';
-          const id = d.id;
+          const C = 'footer_section', id = d.id;
 
-          if (d.copyright_text) setText('footer-copyright', C, id, 'copyright_text', d.copyright_text);
+          if (d.copyright_text) setText('footer-copyright', C, id, 'copyright_text', d.copyright_text, 'popover');
           applyFooterLink('footer-twitter',   d.twitter_url,   d.twitter_enabled);
           applyFooterLink('footer-facebook',  d.facebook_url,  d.facebook_enabled);
           applyFooterLink('footer-instagram', d.instagram_url, d.instagram_enabled);
           applyFooterLink('footer-linkedin',  d.linkedin_url,  d.linkedin_enabled);
         })
         .catch(err => console.error('[Directus] footer_section:', err));
+
+
+      /* ─────────────────────────────────────────────────────────────────
+         DIRECTUS VISUAL EDITOR — initialise the communication bridge
+         Must be called AFTER all data-directus attributes are stamped.
+         The onSaved callback reloads the page so changes appear instantly.
+         ───────────────────────────────────────────────────────────────── */
+      window.addEventListener('load', function () {
+        if (typeof DirectusVisualEditing !== 'undefined') {
+          DirectusVisualEditing.apply({
+            directusUrl: BASE,
+            onSaved: function () {
+              window.location.reload();
+            }
+          });
+        } else {
+          console.warn('[Directus] Visual Editing SDK not loaded — editable overlays unavailable.');
+        }
+      });
 
     })();
     </script>
