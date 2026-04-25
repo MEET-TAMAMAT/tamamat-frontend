@@ -847,20 +847,9 @@
       function first(data) { return Array.isArray(data) ? data[0] : data; }
 
       /**
-       * bind(el, collection, id, field, mode)
-       *
-       * Sets the single `data-directus` attribute that the Directus Visual
-       * Editor SDK (@directus/visual-editing) reads to identify editable
-       * elements. The value is a JSON string with four keys:
-       *   collection – Directus collection name
-       *   item       – primary key of the item (as a string)
-       *   fields     – field name (string) or field names (array of strings)
-       *   mode       – 'popover' | 'modal' | 'drawer'
-       *
-       * mode guide:
-       *   popover  – short text (titles, labels, handles)
-       *   modal    – longer text, markdown, multi-line
-       *   drawer   – complex / multiple fields on one element
+       * bind(el, collection, id, fields, mode)
+       * Stamps the single `data-directus` attribute the Directus Visual
+       * Editor SDK reads to identify editable elements.
        */
       function bind(el, collection, id, fields, mode) {
         if (!el) return;
@@ -872,7 +861,6 @@
         }));
       }
 
-      /** Set textContent + Visual Editor binding */
       function setText(elId, collection, id, field, value, mode) {
         const el = document.getElementById(elId);
         if (!el) return;
@@ -880,7 +868,6 @@
         bind(el, collection, id, field, mode || 'popover');
       }
 
-      /** Set innerHTML (markdown/html) + Visual Editor binding */
       function setHTML(elId, collection, id, field, html, mode) {
         const el = document.getElementById(elId);
         if (!el) return;
@@ -888,14 +875,12 @@
         bind(el, collection, id, field, mode || 'modal');
       }
 
-      /** Set a DOM attribute on an element (href etc.) — no Visual Editor binding */
       function setDomAttr(elId, attr, value) {
         if (value == null) return;
         const el = document.getElementById(elId);
         if (el) el.setAttribute(attr, value);
       }
 
-      /** Set image src from a Directus file UUID + Visual Editor binding */
       function setImg(elId, collection, id, field, uuid) {
         const el = document.getElementById(elId);
         if (!el) return;
@@ -903,13 +888,11 @@
         bind(el, collection, id, field, 'modal');
       }
 
-      /** Render markdown → HTML (falls back to <p> wrapper) */
       function md(text) {
         if (typeof marked !== 'undefined' && text) return marked.parse(text);
         return text ? '<p>' + text + '</p>' : '';
       }
 
-      /** Update href / visibility on a footer social link */
       function applyFooterLink(elId, url, enabled) {
         const el = document.getElementById(elId);
         if (!el) return;
@@ -919,210 +902,188 @@
 
 
       /* ─────────────────────────────────────────────────────────────────
-         HOME  →  collection: tamamat_com_home
+         DATA FETCHES
+         Each returns a Promise. We collect them all and only call
+         apply() once every one has resolved and data-directus attributes
+         have been stamped on their elements.
          ───────────────────────────────────────────────────────────────── */
-      fetch(BASE + '/items/tamamat_com_home')
-        .then(r => r.json())
-        .then(({ data }) => {
-          const d = first(data);
-          if (!d) return;
-          const C = 'tamamat_com_home', id = d.id;
 
-          setText('home-title',       C, id, 'home_title',       d.home_title,       'popover');
-          setText('home-description', C, id, 'home_description', d.home_description, 'modal');
-          setText('home-btn-text',    C, id, 'home_button',      d.home_button,      'popover');
-          setImg ('home-image',       C, id, 'home_image',       d.home_image);
-          if (d.home_title) {
-            const img = document.getElementById('home-image');
-            if (img) img.alt = d.home_title;
-          }
-        })
-        .catch(err => console.error('[Directus] tamamat_com_home:', err));
+      var fetches = [];
 
+      /* HOME  →  tamamat_com_home */
+      fetches.push(
+        fetch(BASE + '/items/tamamat_com_home')
+          .then(r => r.json())
+          .then(function(json) {
+            var d = first(json.data);
+            if (!d) return;
+            var C = 'tamamat_com_home', id = d.id;
+            setText('home-title',       C, id, 'home_title',       d.home_title,       'popover');
+            setText('home-description', C, id, 'home_description', d.home_description, 'modal');
+            setText('home-btn-text',    C, id, 'home_button',      d.home_button,      'popover');
+            setImg ('home-image',       C, id, 'home_image',       d.home_image);
+            if (d.home_title) { var img = document.getElementById('home-image'); if (img) img.alt = d.home_title; }
+          })
+          .catch(function(e) { console.error('[Directus] tamamat_com_home:', e); })
+      );
 
-      /* ─────────────────────────────────────────────────────────────────
-         HOW IT WORKS  →  collection: how_it_works
-         ───────────────────────────────────────────────────────────────── */
-      fetch(BASE + '/items/how_it_works')
-        .then(r => r.json())
-        .then(({ data }) => {
-          const d = first(data);
-          if (!d) return;
-          const C = 'how_it_works', id = d.id;
+      /* HOW IT WORKS  →  how_it_works */
+      fetches.push(
+        fetch(BASE + '/items/how_it_works')
+          .then(r => r.json())
+          .then(function(json) {
+            var d = first(json.data);
+            if (!d) return;
+            var C = 'how_it_works', id = d.id;
+            setText('how-it-works-heading',         C, id, 'main_heading',                d.main_heading,               'popover');
+            setText('manual-selection-title',       C, id, 'manual_selection_title',      d.manual_selection_title,     'popover');
+            setHTML('manual-selection-description', C, id, 'manual_selection_description', md(d.manual_selection_description), 'modal');
+            setText('auto-selection-title',         C, id, 'auto_selection_title',         d.auto_selection_title,       'popover');
+            setHTML('auto-selection-description',   C, id, 'auto_selection_description',   md(d.auto_selection_description),   'modal');
+            setText('hero-video-btn-text',          C, id, 'video_button_text',            d.video_button_text,          'popover');
+          })
+          .catch(function(e) { console.error('[Directus] how_it_works:', e); })
+      );
 
-          setText('how-it-works-heading',         C, id, 'main_heading',                d.main_heading,               'popover');
-          setText('manual-selection-title',       C, id, 'manual_selection_title',      d.manual_selection_title,     'popover');
-          setHTML('manual-selection-description', C, id, 'manual_selection_description', md(d.manual_selection_description), 'modal');
-          setText('auto-selection-title',         C, id, 'auto_selection_title',         d.auto_selection_title,       'popover');
-          setHTML('auto-selection-description',   C, id, 'auto_selection_description',   md(d.auto_selection_description),   'modal');
-          setText('hero-video-btn-text',          C, id, 'video_button_text',            d.video_button_text,          'popover');
-        })
-        .catch(err => console.error('[Directus] how_it_works:', err));
-
-
-      /* ─────────────────────────────────────────────────────────────────
-         FEATURES  →  collection: features_section
-         ───────────────────────────────────────────────────────────────── */
-      fetch(BASE + '/items/features_section')
-        .then(r => r.json())
-        .then(({ data }) => {
-          const d = first(data);
-          if (!d) return;
-          const C = 'features_section', id = d.id;
-
-          setText('features-heading', C, id, 'main_title', d.main_title, 'popover');
-
-          for (let i = 1; i <= 6; i++) {
-            setText('feature-' + i + '-title',       C, id, 'feature_' + i + '_title',       d['feature_' + i + '_title'],       'popover');
-            setText('feature-' + i + '-description', C, id, 'feature_' + i + '_description', d['feature_' + i + '_description'], 'modal');
-          }
-
-          setImg('features-image', C, id, 'main_image', d.main_image);
-        })
-        .catch(err => console.error('[Directus] features_section:', err));
-
-
-      /* ─────────────────────────────────────────────────────────────────
-         PRICING  →  collection: pricing_section
-         ───────────────────────────────────────────────────────────────── */
-      fetch(BASE + '/items/pricing_section')
-        .then(r => r.json())
-        .then(({ data }) => {
-          const d = first(data);
-          if (!d) return;
-          const C = 'pricing_section', id = d.id;
-
-          setText('pricing-heading', C, id, 'main_title', d.main_title, 'popover');
-
-          for (let i = 1; i <= 3; i++) {
-            const price = d['plan_' + i + '_price'];
-            const desc  = d['plan_' + i + '_price_description'];
-
-            setText('plan-' + i + '-name',       C, id, 'plan_' + i + '_name',              d['plan_' + i + '_name'], 'popover');
-            setText('plan-' + i + '-price',      C, id, 'plan_' + i + '_price',             price,                    'popover');
-            setText('plan-' + i + '-price-desc', C, id, 'plan_' + i + '_price_description', desc ? ' ' + desc : '',   'popover');
-
-            // Hide $ prefix for plans with non-numeric price (e.g. "Contact Us")
-            const isNumeric = price && /^\d/.test(price.trim());
-            const currencyEl = document.getElementById('plan-' + i + '-currency');
-            if (currencyEl) currencyEl.style.display = isNumeric ? '' : 'none';
-
-            for (let j = 1; j <= 5; j++) {
-              setText('plan-' + i + '-feature-' + j, C, id, 'plan_' + i + '_feature_' + j, d['plan_' + i + '_feature_' + j], 'popover');
+      /* FEATURES  →  features_section */
+      fetches.push(
+        fetch(BASE + '/items/features_section')
+          .then(r => r.json())
+          .then(function(json) {
+            var d = first(json.data);
+            if (!d) return;
+            var C = 'features_section', id = d.id;
+            setText('features-heading', C, id, 'main_title', d.main_title, 'popover');
+            for (var i = 1; i <= 6; i++) {
+              setText('feature-' + i + '-title',       C, id, 'feature_' + i + '_title',       d['feature_' + i + '_title'],       'popover');
+              setText('feature-' + i + '-description', C, id, 'feature_' + i + '_description', d['feature_' + i + '_description'], 'modal');
             }
+            setImg('features-image', C, id, 'main_image', d.main_image);
+          })
+          .catch(function(e) { console.error('[Directus] features_section:', e); })
+      );
 
-            const btnEl = document.getElementById('plan-' + i + '-btn');
-            if (btnEl) {
-              const btnText = d['plan_' + i + '_button_text'];
-              const btnLink = d['plan_' + i + '_button_link'];
-              if (btnText) btnEl.textContent = btnText;
-              if (btnLink) btnEl.href = btnLink;
-              bind(btnEl, C, id, 'plan_' + i + '_button_text', 'popover');
+      /* PRICING  →  pricing_section */
+      fetches.push(
+        fetch(BASE + '/items/pricing_section')
+          .then(r => r.json())
+          .then(function(json) {
+            var d = first(json.data);
+            if (!d) return;
+            var C = 'pricing_section', id = d.id;
+            setText('pricing-heading', C, id, 'main_title', d.main_title, 'popover');
+            for (var i = 1; i <= 3; i++) {
+              var price = d['plan_' + i + '_price'];
+              var desc  = d['plan_' + i + '_price_description'];
+              setText('plan-' + i + '-name',       C, id, 'plan_' + i + '_name',              d['plan_' + i + '_name'], 'popover');
+              setText('plan-' + i + '-price',      C, id, 'plan_' + i + '_price',             price,                    'popover');
+              setText('plan-' + i + '-price-desc', C, id, 'plan_' + i + '_price_description', desc ? ' ' + desc : '',   'popover');
+              var isNumeric = price && /^\d/.test(price.trim());
+              var curr = document.getElementById('plan-' + i + '-currency');
+              if (curr) curr.style.display = isNumeric ? '' : 'none';
+              for (var j = 1; j <= 5; j++) {
+                setText('plan-' + i + '-feature-' + j, C, id, 'plan_' + i + '_feature_' + j, d['plan_' + i + '_feature_' + j], 'popover');
+              }
+              var btnEl = document.getElementById('plan-' + i + '-btn');
+              if (btnEl) {
+                if (d['plan_' + i + '_button_text']) btnEl.textContent = d['plan_' + i + '_button_text'];
+                if (d['plan_' + i + '_button_link']) btnEl.href = d['plan_' + i + '_button_link'];
+                bind(btnEl, C, id, 'plan_' + i + '_button_text', 'popover');
+              }
             }
-          }
-        })
-        .catch(err => console.error('[Directus] pricing_section:', err));
+          })
+          .catch(function(e) { console.error('[Directus] pricing_section:', e); })
+      );
 
+      /* FAQ SECTION TITLE  →  faq_section */
+      fetches.push(
+        fetch(BASE + '/items/faq_section')
+          .then(r => r.json())
+          .then(function(json) {
+            var d = first(json.data);
+            if (!d) return;
+            setText('faq-heading', 'faq_section', d.id, 'main_title', d.main_title, 'popover');
+          })
+          .catch(function(e) { console.error('[Directus] faq_section:', e); })
+      );
 
-      /* ─────────────────────────────────────────────────────────────────
-         FAQ SECTION TITLE  →  collection: faq_section
-         ───────────────────────────────────────────────────────────────── */
-      fetch(BASE + '/items/faq_section')
-        .then(r => r.json())
-        .then(({ data }) => {
-          const d = first(data);
-          if (!d) return;
-          setText('faq-heading', 'faq_section', d.id, 'main_title', d.main_title, 'popover');
-        })
-        .catch(err => console.error('[Directus] faq_section:', err));
+      /* FAQ ITEMS  →  faq_items */
+      fetches.push(
+        fetch(BASE + '/items/faq_items?sort=sort&filter[status][_eq]=published')
+          .then(r => r.json())
+          .then(function(json) {
+            if (!Array.isArray(json.data)) return;
+            json.data.forEach(function(item, idx) {
+              var n = idx + 1;
+              setText('faq-' + n + '-question', 'faq_items', item.id, 'question', item.question, 'popover');
+              setText('faq-' + n + '-answer',   'faq_items', item.id, 'answer',   item.answer,   'modal');
+              if (item.default_open) {
+                var qEl = document.getElementById('faq-' + n + '-question');
+                var faqItem = qEl && qEl.closest('.faq-item');
+                if (faqItem) faqItem.classList.add('faq-active');
+              }
+            });
+          })
+          .catch(function(e) { console.error('[Directus] faq_items:', e); })
+      );
 
-
-      /* ─────────────────────────────────────────────────────────────────
-         FAQ ITEMS  →  collection: faq_items  (sorted by .sort)
-         ───────────────────────────────────────────────────────────────── */
-      fetch(BASE + '/items/faq_items?sort=sort&filter[status][_eq]=published')
-        .then(r => r.json())
-        .then(({ data }) => {
-          if (!Array.isArray(data)) return;
-          data.forEach((item, idx) => {
-            const n = idx + 1;
-            setText('faq-' + n + '-question', 'faq_items', item.id, 'question', item.question, 'popover');
-            setText('faq-' + n + '-answer',   'faq_items', item.id, 'answer',   item.answer,   'modal');
-
-            if (item.default_open) {
-              const qEl = document.getElementById('faq-' + n + '-question');
-              const faqItem = qEl && qEl.closest('.faq-item');
-              if (faqItem) faqItem.classList.add('faq-active');
+      /* CONTACT  →  contact_section */
+      fetches.push(
+        fetch(BASE + '/items/contact_section')
+          .then(r => r.json())
+          .then(function(json) {
+            var d = first(json.data);
+            if (!d) return;
+            var C = 'contact_section', id = d.id;
+            setText('contact-email', C, id, 'email_address', d.email_address, 'popover');
+            if (d.email_address) setDomAttr('contact-email-link', 'href', 'mailto:' + d.email_address);
+            if (d.telegram_handle) {
+              var handle = d.telegram_handle.replace(/^@/, '');
+              var tgUrl  = 'https://t.me/' + handle;
+              setText('contact-telegram-handle', C, id, 'telegram_handle', d.telegram_handle, 'popover');
+              setDomAttr('contact-telegram-link',        'href', tgUrl);
+              setDomAttr('contact-telegram-handle-link', 'href', tgUrl);
             }
-          });
-        })
-        .catch(err => console.error('[Directus] faq_items:', err));
+            setText('contact-hours-days', C, id, 'support_hours_days', d.support_hours_days, 'popover');
+            setText('contact-hours-time', C, id, 'support_hours_time', d.support_hours_time, 'popover');
+            setText('contact-form-title', C, id, 'form_title',         d.form_title,         'popover');
+            setText('contact-submit-btn', C, id, 'submit_button_text', d.submit_button_text, 'popover');
+          })
+          .catch(function(e) { console.error('[Directus] contact_section:', e); })
+      );
+
+      /* FOOTER  →  footer_section */
+      fetches.push(
+        fetch(BASE + '/items/footer_section')
+          .then(r => r.json())
+          .then(function(json) {
+            var d = first(json.data);
+            if (!d) return;
+            var C = 'footer_section', id = d.id;
+            if (d.copyright_text) setText('footer-copyright', C, id, 'copyright_text', d.copyright_text, 'popover');
+            applyFooterLink('footer-twitter',   d.twitter_url,   d.twitter_enabled);
+            applyFooterLink('footer-facebook',  d.facebook_url,  d.facebook_enabled);
+            applyFooterLink('footer-instagram', d.instagram_url, d.instagram_enabled);
+            applyFooterLink('footer-linkedin',  d.linkedin_url,  d.linkedin_enabled);
+          })
+          .catch(function(e) { console.error('[Directus] footer_section:', e); })
+      );
 
 
       /* ─────────────────────────────────────────────────────────────────
-         CONTACT  →  collection: contact_section
+         DIRECTUS VISUAL EDITOR — called AFTER all fetches have settled
+         so every data-directus attribute is guaranteed to be stamped
+         before the SDK scans the page.
          ───────────────────────────────────────────────────────────────── */
-      fetch(BASE + '/items/contact_section')
-        .then(r => r.json())
-        .then(({ data }) => {
-          const d = first(data);
-          if (!d) return;
-          const C = 'contact_section', id = d.id;
-
-          setText('contact-email', C, id, 'email_address', d.email_address, 'popover');
-          if (d.email_address) setDomAttr('contact-email-link', 'href', 'mailto:' + d.email_address);
-
-          if (d.telegram_handle) {
-            const handle = d.telegram_handle.replace(/^@/, '');
-            const tgUrl  = 'https://t.me/' + handle;
-            setText('contact-telegram-handle', C, id, 'telegram_handle', d.telegram_handle, 'popover');
-            setDomAttr('contact-telegram-link',        'href', tgUrl);
-            setDomAttr('contact-telegram-handle-link', 'href', tgUrl);
-          }
-
-          setText('contact-hours-days', C, id, 'support_hours_days', d.support_hours_days, 'popover');
-          setText('contact-hours-time', C, id, 'support_hours_time', d.support_hours_time, 'popover');
-          setText('contact-form-title', C, id, 'form_title',         d.form_title,         'popover');
-          setText('contact-submit-btn', C, id, 'submit_button_text', d.submit_button_text, 'popover');
-        })
-        .catch(err => console.error('[Directus] contact_section:', err));
-
-
-      /* ─────────────────────────────────────────────────────────────────
-         FOOTER  →  collection: footer_section
-         ───────────────────────────────────────────────────────────────── */
-      fetch(BASE + '/items/footer_section')
-        .then(r => r.json())
-        .then(({ data }) => {
-          const d = first(data);
-          if (!d) return;
-          const C = 'footer_section', id = d.id;
-
-          if (d.copyright_text) setText('footer-copyright', C, id, 'copyright_text', d.copyright_text, 'popover');
-          applyFooterLink('footer-twitter',   d.twitter_url,   d.twitter_enabled);
-          applyFooterLink('footer-facebook',  d.facebook_url,  d.facebook_enabled);
-          applyFooterLink('footer-instagram', d.instagram_url, d.instagram_enabled);
-          applyFooterLink('footer-linkedin',  d.linkedin_url,  d.linkedin_enabled);
-        })
-        .catch(err => console.error('[Directus] footer_section:', err));
-
-
-      /* ─────────────────────────────────────────────────────────────────
-         DIRECTUS VISUAL EDITOR — initialise the communication bridge
-         Must be called AFTER all data-directus attributes are stamped.
-         The onSaved callback reloads the page so changes appear instantly.
-         ───────────────────────────────────────────────────────────────── */
-      window.addEventListener('load', function () {
-        if (typeof DirectusVisualEditing !== 'undefined') {
-          DirectusVisualEditing.apply({
-            directusUrl: BASE,
-            onSaved: function () {
-              window.location.reload();
-            }
-          });
-        } else {
-          console.warn('[Directus] Visual Editing SDK not loaded — editable overlays unavailable.');
+      Promise.allSettled(fetches).then(function () {
+        if (typeof DirectusVisualEditing === 'undefined') {
+          console.warn('[Directus] Visual Editing SDK not loaded.');
+          return;
         }
+        DirectusVisualEditing.apply({
+          directusUrl: BASE,
+          onSaved: function () { window.location.reload(); }
+        });
       });
 
     })();
