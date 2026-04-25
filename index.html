@@ -956,13 +956,14 @@
             setText('header-company-title', C, id, 'company_title', d.company_title, 'popover');
 
             // login_button is stored as JSON: { text, href, enabled }
-            if (d.login_button) {
-              var btn = typeof d.login_button === 'string' ? JSON.parse(d.login_button) : d.login_button;
-              var btnEl = document.getElementById('header-login-btn');
-              if (btnEl) {
+            var btnEl = document.getElementById('header-login-btn');
+            if (btnEl) {
+              // Always bind so it's editable in Visual Editor even when field is null
+              bind(btnEl, C, id, 'login_button', 'modal');
+              if (d.login_button) {
+                var btn = typeof d.login_button === 'string' ? JSON.parse(d.login_button) : d.login_button;
                 if (btn.text) btnEl.textContent = btn.text;
                 if (btn.href) btnEl.href = btn.href;
-                bind(btnEl, C, id, 'login_button', 'modal');
               }
             }
 
