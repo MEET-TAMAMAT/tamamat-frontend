@@ -41,7 +41,9 @@
     <!-- Marked.js for Markdown rendering (used by how_it_works rich-text-md fields) -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <!-- Directus Visual Editing SDK (required for Visual Editor in-page overlays) -->
+    <!-- @reach/observe-rect — peer dependency required by @directus/visual-editing UMD build -->
+    <script src="https://unpkg.com/@reach/observe-rect@1.3.0/dist/observe-rect.umd.js" type="text/javascript"></script>
+    <!-- Directus Visual Editing SDK -->
     <script src="https://unpkg.com/@directus/visual-editing" type="text/javascript"></script>
   </head>
 
