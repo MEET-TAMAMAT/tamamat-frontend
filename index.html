@@ -74,23 +74,27 @@
     <header id="header" class="header d-flex align-items-center fixed-top">
       <div class="container-fluid container-xl position-relative d-flex align-items-center">
         <a href="index.html" class="logo d-flex align-items-center me-auto">
-          <img src="assets/img/tamamat-logo-200x122.svg" alt="" />
-          <h1 class="sitename site-title">TAMAMAT</h1>
+          <!-- header_logos.light_theme_logo (image asset) -->
+          <img id="header-logo-img" src="assets/img/tamamat-logo-200x122.svg" alt="" />
+          <!-- header_config.company_title -->
+          <h1 id="header-company-title" class="sitename site-title">TAMAMAT</h1>
         </a>
 
         <nav id="navmenu" class="navmenu">
           <ul>
-            <li><a href="#home" class="active">Home<br /></a></li>
-            <li><a href="#how-it-works">How It Works</a></li>
-            <li><a href="#features">Features</a></li>
-            <li><a href="#pricing">Pricing</a></li>
-            <li><a href="#faq">FAQ</a></li>
-            <li><a href="#contact">Contact</a></li>
+            <!-- navigation_items — each <a> gets its own item id from Directus -->
+            <li><a id="nav-item-1" href="#home" class="active">Home</a></li>
+            <li><a id="nav-item-2" href="#how-it-works">How It Works</a></li>
+            <li><a id="nav-item-3" href="#features">Features</a></li>
+            <li><a id="nav-item-4" href="#pricing">Pricing</a></li>
+            <li><a id="nav-item-5" href="#faq">FAQ</a></li>
+            <li><a id="nav-item-6" href="#contact">Contact</a></li>
           </ul>
           <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
 
-        <a class="btn-getstarted flex-md-shrink-0" href="index.html#about">Log in</a>
+        <!-- header_config.login_button -->
+        <a id="header-login-btn" class="btn-getstarted flex-md-shrink-0" href="index.html#about">Log in</a>
       </div>
     </header>
 
@@ -938,7 +942,59 @@
 
       var fetches = [];
 
-      /* HOME  →  tamamat_com_home */
+      /* HEADER CONFIG  →  header_config
+         id: 0d24dafe-89f4-4f15-a8fc-785f05b5e1d0
+         fields: company_title · login_button (JSON) · logo (→ header_logos) */
+      fetches.push(
+        fetch(BASE + '/items/header_config?limit=1')
+          .then(r => r.json())
+          .then(function(json) {
+            var d = first(json.data);
+            if (!d) return;
+            var C = 'header_config', id = d.id;
+
+            setText('header-company-title', C, id, 'company_title', d.company_title, 'popover');
+
+            // login_button is stored as JSON: { text, href, enabled }
+            if (d.login_button) {
+              var btn = typeof d.login_button === 'string' ? JSON.parse(d.login_button) : d.login_button;
+              var btnEl = document.getElementById('header-login-btn');
+              if (btnEl) {
+                if (btn.text) btnEl.textContent = btn.text;
+                if (btn.href) btnEl.href = btn.href;
+                bind(btnEl, C, id, 'login_button', 'modal');
+              }
+            }
+
+            // Bind logo img to header_logos collection via the logo UUID
+            var logoImg = document.getElementById('header-logo-img');
+            if (logoImg && d.logo) {
+              bind(logoImg, 'header_logos', d.logo, 'light_theme_logo', 'modal');
+            }
+          })
+          .catch(function(e) { console.error('[Directus] header_config:', e); })
+      );
+
+      /* NAVIGATION ITEMS  →  navigation_items  (sorted by .sort, active only)
+         Each nav <a> gets its own item id so every label is individually editable. */
+      fetches.push(
+        fetch(BASE + '/items/navigation_items?sort=sort&filter[is_active][_eq]=true')
+          .then(r => r.json())
+          .then(function(json) {
+            if (!Array.isArray(json.data)) return;
+            json.data.forEach(function(item, idx) {
+              var n = idx + 1;
+              var el = document.getElementById('nav-item-' + n);
+              if (!el) return;
+              if (item.label) el.textContent = item.label;
+              if (item.href)  el.href = item.href;
+              bind(el, 'navigation_items', item.id, 'label', 'popover');
+            });
+          })
+          .catch(function(e) { console.error('[Directus] navigation_items:', e); })
+      );
+
+
       fetches.push(
         fetch(BASE + '/items/tamamat_com_home')
           .then(r => r.json())
